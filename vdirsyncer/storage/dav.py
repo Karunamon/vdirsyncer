@@ -387,16 +387,16 @@ class DavStorage(Storage):
         hrefs_left = set(hrefs)
         for href, etag, prop in self._parse_prop_responses(root):
             raw = prop.find(self.get_multi_data_query)
-            if raw is None:
+            raw = getattr(raw, 'text', None)
+            if not raw:
                 dav_logger.warning('Skipping {}, the item content is missing.'
                                    .format(href))
                 continue
-            else:
-                raw = raw.text
-                if isinstance(raw, bytes):
-                    raw = raw.decode(response.encoding)
-                if isinstance(etag, bytes):
-                    etag = etag.decode(response.encoding)
+
+            if isinstance(raw, bytes):
+                raw = raw.decode(response.encoding)
+            if isinstance(etag, bytes):
+                etag = etag.decode(response.encoding)
 
             try:
                 hrefs_left.remove(href)
